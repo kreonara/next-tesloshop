@@ -1,8 +1,13 @@
+'use client'
+
 import { montserratAlt } from "@/src/config/fonts"
+import { useUIStore } from "@/src/store/ui/ui-store"
 import Link from "next/link"
 import { IoCartOutline, IoSearchOutline } from "react-icons/io5"
 
 const TopMenu = () => {
+    const openMenu = useUIStore(state => state.openSideMenu)
+  
   return (
     <nav className="flex px-5 justify-between items-center w-full">
 
@@ -35,7 +40,7 @@ const TopMenu = () => {
         </Link>
         <Link
           className="m-2 p-2 rounded-md transition-all hover:bg-gray-100"
-          href={"/category/kids"}
+          href={"/category/kid"}
         >
           Niños
         
@@ -59,6 +64,7 @@ const TopMenu = () => {
 
         <button
           className="m-2 p-2 rounded-md transition-all hover:bg-gray-100"
+          onClick={() => openMenu()}
         >
           Menú
         </button>
