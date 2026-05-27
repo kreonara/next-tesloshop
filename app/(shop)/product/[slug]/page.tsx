@@ -3,7 +3,7 @@ import ProductSlideshow from "@/components/product/ProductSlideshow";
 import QuantitySelector from "@/components/product/QuantitySelector";
 import SizeSelector from "@/components/product/SizeSelector";
 import { montserratAlt } from "@/src/config/fonts";
-import { initialData } from "@/src/lib/seed";
+import { initialData } from "@/prisma/seed";
 import { notFound } from "next/navigation";
 
 interface Props {

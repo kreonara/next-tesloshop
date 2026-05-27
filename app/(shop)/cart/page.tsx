@@ -1,6 +1,6 @@
 import QuantitySelector from "@/components/product/QuantitySelector";
 import Title from "@/components/ui/title/Title";
-import { initialData } from "@/src/lib/seed";
+import { initialData } from "@/prisma/seed";
 import Image from "next/image";
 import Link from "next/link";
 

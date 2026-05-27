@@ -1,7 +1,7 @@
 import ProductGrid from "@/components/products/product-grid/ProductGrid";
 import Title from "@/components/ui/title/Title";
 import { Category } from "@/src/interfaces/product.interface";
-import { initialData } from "@/src/lib/seed";
+import { initialData } from "@/prisma/seed";
 import { notFound } from "next/navigation";
 
 const seedProducts = initialData.products
