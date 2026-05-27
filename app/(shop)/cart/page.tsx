@@ -11,6 +11,8 @@ const productsInCart = [
 ]
 
 export default function CartPage() {
+  // si el carrito esta vacío: redirect('/empty')
+  
   return (
     <div className="flex justify-center items-center mb-10 px-10 sm:px-0">
       <div className="flex flex-col w-[1000px]">
@@ -53,7 +55,7 @@ export default function CartPage() {
           </div>
 
           {/* CHECKOUT - RESUMEN DE LA ORDEN */}
-          <div className="bg-white rounded-xl shadow-xl p-7">
+          <div className="bg-white rounded-xl shadow-xl p-7 h-fit">
             <h2 className="text-2xl mb-2">Resumen de orden</h2>
 
             <div className="grid grid-cols-2">
