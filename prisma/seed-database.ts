@@ -17,11 +17,11 @@ import { initialData } from "./seed"
 async function main() {
   try {
     // BORRAR REGISTROS PREVIOS
-    await Promise.all([
-      prisma.productImage.deleteMany(),
-      prisma.product.deleteMany(),
-      prisma.category.deleteMany()
-    ])
+    // await Promise.all([
+    await prisma.productImage.deleteMany(),
+    await prisma.product.deleteMany(),
+    await prisma.category.deleteMany()
+    // ])
 
     const { categories, products } = initialData
 
@@ -48,6 +48,27 @@ async function main() {
       map[category.name.toLowerCase()] = category.id
       return map // retornamos acumulador
     }, {} as Record<string, string>) // <string='Shirts', string='123-456'>
+
+    products.forEach( async(product) => {
+      const { type, images, ...rest} = product
+      const dbProduct = await prisma.product.create({
+        data: {
+          ...rest,
+          categoryId: categoriesMap[type]
+        }
+      })
+
+      // IMAGES
+      const imagesData = images.map( image => ({
+        url: image,
+        productId: dbProduct.id
+      }))
+
+      await prisma.productImage.createMany({
+        data: imagesData
+      })
+    })
+
 
 
 
