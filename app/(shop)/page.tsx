@@ -1,10 +1,22 @@
+import { getPaginationProductsWithImages } from "@/actions/products/product-pagination.action";
 import ProductGrid from "@/components/products/product-grid/ProductGrid";
+import Pagination from "@/components/ui/pagination/Pagination";
 import Title from "@/components/ui/title/Title";
-import { initialData } from "@/prisma/seed";
+import { redirect } from "next/navigation";
 
-const products = initialData.products
+interface Props {
+  // searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string }>
+}
 
-export default function ShopPage() {
+export default async function ShopPage({ searchParams }: Props) {
+  const page = (await searchParams).page ? parseInt((await searchParams).page!) : 1
+
+  const { products, currentPage, totalPages } = await getPaginationProductsWithImages({page: page})
+
+  // si no hay productos redirigir a /
+  if(products.length === 0) redirect('/')
+
   return (
     <>
       <Title 
@@ -14,6 +26,8 @@ export default function ShopPage() {
       />
 
       <ProductGrid products={products} />
+
+      <Pagination totalPages={totalPages} />
     </>
   );
 }
