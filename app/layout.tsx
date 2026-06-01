@@ -13,7 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Teslo Shop",
+  title: {
+    template: "%s - Teslo Shop",
+    default: "Home - Teslo Shop"
+  },
   description: "Teslo Shop",
 };
 

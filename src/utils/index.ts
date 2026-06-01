@@ -23,3 +23,12 @@ export function generatePaginationNumbers(currentPage: number, totalPages: numbe
   // [1, ..., 22, 23, 24, ..., 50]
   return [1, '...', currentPage-1, currentPage, currentPage+1, '...', totalPages]
 }
+
+
+export const sleep = (seconds: number = 1) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(true)
+    }, seconds * 1000);
+  })
+}
