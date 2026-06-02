@@ -18,12 +18,17 @@ async function main() {
   try {
     // BORRAR REGISTROS PREVIOS
     // await Promise.all([
-    await prisma.productImage.deleteMany(),
-    await prisma.product.deleteMany(),
-    await prisma.category.deleteMany()
+      await prisma.productImage.deleteMany()
+      await prisma.product.deleteMany()
+      await prisma.category.deleteMany()
+      await prisma.user.deleteMany()
     // ])
 
-    const { categories, products } = initialData
+    const { categories, products, users } = initialData
+
+    await prisma.user.createMany({
+      data: users
+    })
 
     // CATEGORIAS
     // AGREGAR UNA CATEGORIA
