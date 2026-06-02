@@ -14,6 +14,7 @@ interface Props {
 }
 
 import type { Metadata } from 'next'
+import AddToCart from "./ui/AddToCart";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProductBySlug((await params).slug)
@@ -67,21 +68,7 @@ export default async function ProductPage({ params }: Props) {
         </h1>
         <p className="text-lg mb-5">${product.price}</p>
 
-        {/* SELECTOR DE TALLAS */}
-        <SizeSelector 
-          selectedSize={product.sizes[0]}
-          availableSizes={product.sizes}
-        />
-
-        {/* SELECTOR DE CANTIDAD */}
-        <QuantitySelector 
-          quantity={2}
-        />
-
-        {/* BOTON Add to Cart */}
-        <button className="btn-primary my-5">
-          Agregar al carrito
-        </button>
+        <AddToCart product={product} />
 
         {/* DESCRIPCIÓN */} 
         <h3 className="font-bold text-sm">Descripción</h3>
