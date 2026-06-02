@@ -1,20 +1,15 @@
 'use server'
 
 import { signIn } from "@/auth"
+import { sleep } from "@/src/utils"
 
-type ActionStateType = {
-  errors: string[]
-}
 
-export async function authenticate(prevState: ActionStateType, formData: FormData) {
+export async function authenticate(prevState: string|undefined, formData: FormData) {
   try {
+    await sleep(2)
     await signIn("credentials", formData)
     
   } catch (error) {
-    console.log('Credenciales Incorrectas:', error)
-  }
-  
-  return {
-    errors: []
+    return 'CredentialsSignin'
   }
 }
