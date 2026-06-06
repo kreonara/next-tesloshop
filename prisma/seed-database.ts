@@ -4,6 +4,7 @@
 // import { PrismaClient } from '@/generated/prisma/client';
 import { prisma } from "@/src/lib/prisma"
 import { initialData } from "./seed"
+import { countries } from './seed-countries';
 
 // const connectionString = process.env.DATABASE_URL
 // if (!connectionString) {
@@ -21,6 +22,7 @@ async function main() {
       await prisma.productImage.deleteMany()
       await prisma.product.deleteMany()
       await prisma.category.deleteMany()
+      await prisma.country.deleteMany()
       await prisma.user.deleteMany()
     // ])
 
@@ -28,6 +30,10 @@ async function main() {
 
     await prisma.user.createMany({
       data: users
+    })
+
+    await prisma.country.createMany({
+      data: countries
     })
 
     // CATEGORIAS

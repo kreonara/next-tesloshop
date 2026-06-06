@@ -91,3 +91,8 @@ model Account {
 
   @@unique([provider, providerAccountId])
 }
+
+model Country {
+  id String @id
+  name String
+}
