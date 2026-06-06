@@ -89,9 +89,9 @@ const Sidebar = () => {
             <button
               className="flex items-center mt-10 p-2 hover:bg-gray-100 rounded-xl transition-all"
               onClick={ () => {
-                logout()
                 closeMenu()
-                window.location.reload()
+                logout()
+                // window.location.reload()
               }}
             >
               <IoLogOutOutline size={30} />

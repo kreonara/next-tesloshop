@@ -1,36 +1,93 @@
 'use client'
 
+import { login } from "@/actions/auth/login.action"
+import { registerUser } from "@/actions/auth/register.action"
+import clsx from "clsx"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { SubmitHandler, useForm } from 'react-hook-form'
 
-type FormInputs = {
+export type FormInputs = {
   name: string
   email: string
   password: string
 }
 
 const RegisterForm = () => {
-  return (
-    <div className="flex flex-col">
+  const [errorMessage, setErrorMessage] = useState('')
+  const { register, handleSubmit, formState: {errors} } = useForm<FormInputs>()
 
-      <label htmlFor="email">Nombre completo</label>
+  const onSubmit = async(data: FormInputs) => {
+    setErrorMessage('')
+    // const { name, email, password } = data
+    // server action
+    const resp = await registerUser(data)
+    if(!resp.ok) {
+      setErrorMessage(resp.message)
+      return
+    }
+
+    await login(data.email.toLowerCase(), data.password)
+    window.location.replace('/')
+  }
+
+  return (
+    <form onSubmit={ handleSubmit(onSubmit) } className="flex flex-col">
+      {
+        errors.name?.type === 'required' &&
+          <span className="text-red-500">* Todos los campos son obligatorios</span>
+      }
+
+      <label htmlFor="name">Nombre completo</label>
       <input
-        className="px-5 py-2 border bg-gray-200 rounded mb-5"
-        type="text" />
+        className={
+          clsx(
+            "px-5 py-2 border bg-gray-200 rounded mb-5",
+            {
+              'border-red-500': errors.name
+            }
+          )
+        }
+        type="text"
+        autoFocus
+        {...register('name', {required: true})}
+      />
 
       <label htmlFor="email">Correo electrónico</label>
       <input
-        className="px-5 py-2 border bg-gray-200 rounded mb-5"
-        type="email" />
+        className={
+          clsx(
+            "px-5 py-2 border bg-gray-200 rounded mb-5",
+            {
+              'border-red-500': errors.email
+            }
+          )
+        }
+        type="email"
+        {...register('email', {required: true, pattern: /^\S+@\S+$/i})}
+      />
 
 
-      <label htmlFor="email">Contraseña</label>
+      <label htmlFor="password">Contraseña</label>
       <input
-        className="px-5 py-2 border bg-gray-200 rounded mb-5"
-        type="text" />
+        className={
+          clsx(
+            "px-5 py-2 border bg-gray-200 rounded mb-5",
+            {
+              'border-red-500': errors.password
+            }
+          )
+        }
+        type="password"
+        {...register('password', {required: true, minLength: 6})}
+      />
+
+      <span className="text-red-500 text-center my-2">{errorMessage}</span>
 
       <button
-        
-        className="btn-primary">
+        className="btn-primary"
+      >
         Crear cuenta
       </button>
 
@@ -44,11 +101,12 @@ const RegisterForm = () => {
 
       <Link
         href="/auth/login" 
-        className="btn-secondary text-center">
+        className="btn-secondary text-center"
+      >
         Ingresar
       </Link>
 
-    </div>
+    </form>
   )
 }
 
