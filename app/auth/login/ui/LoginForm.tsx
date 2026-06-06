@@ -3,14 +3,22 @@
 import { authenticate } from "@/actions/auth/login.action"
 import clsx from "clsx"
 import Link from "next/link"
-import { useActionState } from "react"
+// import { useRouter } from "next/navigation"
+import { useActionState, useEffect } from "react"
 import { useFormStatus } from "react-dom"
 import { IoInformationOutline } from "react-icons/io5"
 
 const LoginForm = () => {
+  // const router = useRouter()
   const [ state, action ] = useActionState(authenticate, undefined)
 
-  console.log(state)
+  useEffect(() => {
+    if(state === 'Success') {
+      // router.replace('/')
+      window.location.replace('/')
+    }
+  }, [state])
+
 
   return (
     <form action={action} className="flex flex-col">

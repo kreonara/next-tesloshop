@@ -14,6 +14,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: 'jwt',
     maxAge: ONE_MONTH
   },
+  callbacks: {
+    async jwt({ token, user }) {
+      if(user) token.data = user
+      return token
+    },
+
+    async session({ session, token }) {
+      session.user = token.data as any
+      return session
+    },
+  },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -63,8 +74,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
     })
   ],
-  pages: {
-    signIn: '/auth/login',
-    newUser: '/auth/new-account'
-  }
 })
