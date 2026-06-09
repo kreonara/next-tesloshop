@@ -72,6 +72,7 @@ model User {
   role Role @default(user)
   image String?
   account Account[]
+  address UserAddress?
 }
 
 model Account {
@@ -95,4 +96,23 @@ model Account {
 model Country {
   id String @id
   name String
+  UserAddress UserAddress[]
+}
+
+model UserAddress {
+  id String @id @default(cuid())
+  firstName String
+  lastName String
+  address String
+  address2 String?
+  postalCode String
+  phone String
+  city String
+
+  countryId String
+  country Country @relation(fields: [countryId], references: [id])
+
+  // relacion 1 - 1
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
 }
