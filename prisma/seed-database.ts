@@ -19,6 +19,9 @@ async function main() {
   try {
     // BORRAR REGISTROS PREVIOS
     // await Promise.all([
+      await prisma.orderAddress.deleteMany()
+      await prisma.orderItem.deleteMany()
+      await prisma.order.deleteMany()
       await prisma.productImage.deleteMany()
       await prisma.product.deleteMany()
       await prisma.category.deleteMany()

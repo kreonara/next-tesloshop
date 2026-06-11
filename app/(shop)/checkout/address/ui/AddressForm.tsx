@@ -50,8 +50,8 @@ const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
   
 
   const onSubmit = async(data: FormInputs) => {
-    setAddress(data)
     const { rememberAddress, ...restAddress} = data
+    setAddress(restAddress)
 
     if(rememberAddress) {
       // guardamos en la DB - server action
