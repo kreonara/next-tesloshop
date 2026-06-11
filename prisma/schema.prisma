@@ -126,6 +126,7 @@ model Order {
   id String @id @default(uuid())
   subTotal Float
   tax Float
+  total Float
   itemsInOrder Int
   isPaid Boolean
   paidAt DateTime?
