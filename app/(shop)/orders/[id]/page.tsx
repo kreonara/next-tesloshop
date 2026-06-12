@@ -1,17 +1,11 @@
 import { getOrderById } from "@/actions/order/get-order-by-id.action";
+import PayPalButton from "@/components/paypal/PayPalButton";
 import Title from "@/components/ui/title/Title";
-import { initialData } from "@/prisma/seed";
 import { currencyFormat } from "@/src/utils";
 import clsx from "clsx";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { IoCartOutline } from "react-icons/io5";
-
-const productsInCart = [
-  initialData.products[0],
-  initialData.products[1],
-  initialData.products[2]
-]
 
 interface Props {
   params: Promise<{ id: string }>
@@ -27,7 +21,7 @@ export default async function OrderPage({ params }: Props) {
 
   return (
     <div className="flex justify-center items-center mb-10 px-10 sm:px-0">
-      <div className="flex flex-col w-[1000px]">
+      <div className="flex flex-col w-250">
         <Title title={`Orden #${id.split('-').at(-1)}`} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
@@ -112,23 +106,7 @@ export default async function OrderPage({ params }: Props) {
             
             <div className="mt-5 mb-2 w-full">
 
-              <div className={
-                clsx(
-                  "flex items-center rounded-lg py-2 px-3.5 text-xs font-bold text-white mb-5",
-                  {
-                    'bg-red-500': !order!.isPaid,
-                    'bg-green-700': order!.isPaid,
-                  }
-                )
-              }>
-                <IoCartOutline size={30} />
-                {/* <span className="mx-2">Pendiente de pago</span> */}
-                <span className="mx-2">
-                  {
-                    order?.isPaid ? 'Pagada' : 'No pagada'
-                  }
-                </span>
-              </div>
+              <PayPalButton />
 
             </div>
           </div>
