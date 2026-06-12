@@ -4,7 +4,6 @@ import { auth } from "@/auth"
 import type { Address } from "@/src/interfaces/address.interface"
 import type { Size } from "@/src/interfaces/product.interface"
 import { prisma } from "@/src/lib/prisma"
-import { currencyFormat } from "@/src/utils"
 
 interface ProductToOrder {
   productId: string
@@ -51,41 +50,99 @@ export async function placeOrder(products: ProductToOrder[], address: Address) {
 
   }, {subTotal: 0, tax: 0, total: 0})
 
-  // guardar en la DB y si algo sale mal hacer un rollback (deshacer) - prisma.$transaction
-  const prismaTx = await prisma.$transaction( async(tx) => {
-    // 1. actualizar/verificar el stock de los productos
-
-    // 2. crear la orden (model Order) y los productos de la orden (model OrderItem)
-    const order = await tx.order.create({
-      data: {
-        // Encabezado
-        userId: session.user.id,
-        itemsInOrder: totalArticulos,
-        subTotal: subTotal,
-        tax: tax,
-        total: +total.toFixed(2),
-        isPaid: false,
-
-        // Detalle
-        OrderItem: {
-          createMany: {
-            data: products.map( product => ({
-              quantity: product.quantity,
-              size: product.size,
-              productId: product.productId,
-              price: productsDB.find(p => p.id === product.productId)?.price ?? 0
-            }))
+  // "guardar" en la DB y si algo sale mal hacer un rollback (deshacer) - prisma.$transaction
+  try {
+    
+    const prismaTx = await prisma.$transaction( async(tx) => {
+      // 1. actualizar/verificar el stock de los productos
+  
+      // arreglo de transacciones
+      const updateProducts = productsDB.map( product => {
+  
+        // contar los productos por modelo
+        const productQuantity = products.filter(
+          p => p.productId === product.id
+        ).reduce( (count, item) => item.quantity + count,0)
+  
+        if(productQuantity === 0) throw new Error(`${product.id} no tiene cantidad definida`)
+  
+        // decrementamos el stock de un modelo
+        return tx.product.update({
+          where: {id: product.id},
+          data: {
+            inStock: {
+              decrement: productQuantity
+            }
+          }
+        })
+      })
+  
+      // ejecutamos las transacciones (no impacta en la DB)
+      const updateProductsInDB = await Promise.all(updateProducts)
+  
+      // verificar si hay valores negativos
+      updateProductsInDB.forEach(product => {
+        if(product.inStock < 0) {
+          throw new Error(`${product.title} no tiene inventario suficiente`)
+        }
+      })
+  
+  
+      // 2. crear la orden (model Order) y los productos de la orden (model OrderItem)
+      const order = await tx.order.create({
+        data: {
+          // Encabezado
+          userId: session.user.id,
+          itemsInOrder: totalArticulos,
+          subTotal: subTotal,
+          tax: tax,
+          total: +total.toFixed(2),
+          isPaid: false,
+  
+          // Detalle
+          OrderItem: {
+            createMany: {
+              data: products.map( product => ({
+                quantity: product.quantity,
+                size: product.size,
+                productId: product.productId,
+                price: productsDB.find(p => p.id === product.productId)?.price ?? 0
+              }))
+            }
           }
         }
+      })
+      
+      // si el precio es cero -> lanzar un error
+  
+      // 3. crear la dirección de la orden (model OrderAddress)
+      const { country, ...restAddress} = address
+      const orderAddress = await tx.orderAddress.create({
+        data: {
+          ...restAddress,
+          countryId: country,
+          orderId: order.id
+        }
+      })
+  
+      return {
+        order: order,
+        orderAddress: orderAddress,
+        updateProductsInDB
       }
     })
+
     
-    // si el precio es cero -> lanzar un error
-
-    // 3. crear la dirección de la orden
-
     return {
-      order: order
+      ok: true,
+      order: prismaTx.order,
+      prismaTx
     }
-  })
+
+  } catch (error: any) {
+    return {
+      ok: false,
+      message: error?.message
+    }
+  }
 }

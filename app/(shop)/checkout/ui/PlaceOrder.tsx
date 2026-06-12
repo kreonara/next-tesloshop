@@ -5,13 +5,17 @@ import { useAddressStore } from "@/src/store/address-store"
 import { useCartStore } from "@/src/store/cart-store"
 import { currencyFormat, sleep } from "@/src/utils"
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 const PlaceOrder = () => {
+  const router = useRouter()
   const [loaded, setLoaded] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const address = useAddressStore(state => state.address)
   const cart = useCartStore(state => state.cart)
+  const clearCart = useCartStore(state => state.clearCart)
   
   const { itemsInCart, subtotal, tax, total } = useMemo(() => {
     const subtotal = cart.reduce(
@@ -39,10 +43,27 @@ const PlaceOrder = () => {
       size: product.size
     }))
 
-    const resp = await placeOrder(productsToOrder, address)
-    console.log({resp})
+    const init = {
+      address: address.address,
+      city: address.city,
+      country: address.country,
+      firstName: address.firstName,
+      lastName: address.lastName,
+      phone: address.phone,
+      postalCode: address.postalCode,
+      address2: address.address2
+    }
+    const resp = await placeOrder(productsToOrder, init)
 
-    setIsPlacingOrder(false)
+    if(!resp.ok) {
+      setIsPlacingOrder(false)
+      setErrorMessage(resp.message)
+      return
+    }
+
+    // SI TODO ESTA BIEN (SE CREO LA ORDEN)
+    clearCart()
+    router.replace('/orders/' + resp.order?.id)
   }
 
   if(!loaded) {
@@ -90,7 +111,8 @@ const PlaceOrder = () => {
           </span>
         </p>
 
-        {/* <p className="text-red-500">Error de creación</p> */}
+        <p className="text-red-500 mb-3">{errorMessage}</p>
+
         <button
           onClick={ onPlaceOrder }
           className={
