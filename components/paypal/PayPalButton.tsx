@@ -1,27 +1,59 @@
 'use client'
 
-import { PayPalOneTimePaymentButton } from "@paypal/react-paypal-js/sdk-v6"
+import { PayPalOneTimePaymentButton, usePayPal, INSTANCE_LOADING_STATE } from "@paypal/react-paypal-js/sdk-v6"
+import { useRouter } from "next/navigation"
 
-interface OnApproveDataOneTimePayments {
+interface Props {
   orderId: string
 }
 
-const PayPalButton = () => {
+const PayPalButton = ({ orderId }: Props) => {
+  const router = useRouter()
+  const { loadingStatus } = usePayPal()
+
+  if(loadingStatus === INSTANCE_LOADING_STATE.PENDING) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-11 bg-gray-300 rounded-md"></div>
+      </div>
+    )
+  }
+
+  const createOrder = async() => {
+    const response = await fetch('/api/paypal/create-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ orderId })
+    })
+
+    const data = await response.json()
+
+    return {
+      orderId: data.paypalOrderId
+    }
+  }
+
+  const onApprove = async(data: any) => {
+    const response = await fetch('/api/paypal/capture-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({paypalOrderId: data.orderId})
+    })
+
+    const result = await response.json()
+    console.log(result)
+
+    router.refresh()
+  }
+
   return (
-    <PayPalOneTimePaymentButton 
-      createOrder={async () => {
-        const response = await fetch("/api/create-order", {
-          method: "POST",
-        });
-        const { orderId } = await response.json();
-        return { orderId };
-      }}
-      onApprove={async ({ orderId }: OnApproveDataOneTimePayments) => {
-        await fetch(`/api/capture-order/${orderId}`, {
-          method: "POST",
-        });
-        console.log("Payment captured!");
-      }}
+    <PayPalOneTimePaymentButton
+      createOrder={ createOrder }
+      onApprove={ onApprove }
     />
   )
 }
